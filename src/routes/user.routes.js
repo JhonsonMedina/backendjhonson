@@ -1,4 +1,5 @@
-const { crearUser,getUserById, loginUser } = require("../controllers/user.controller");
+const { crearUser,getUserById, loginUser, updateStatusUserById, updateUserById } = require("../controllers/user.controller");
+const { updateOne } = require("../models/user.model");
 
 const router = require("express").Router();
 
@@ -12,9 +13,16 @@ router.post("/login", loginUser);
 //obtener un usuario por su id
 
 router.get("/getbyid/:iduser", getUserById)
+
+//actualizando estatus del usuario
+router.put("/update-status/:iduser", updateStatusUserById)
+
+//actualizando email del usuario
+router.put("/update/:iduser", updateUserById)
+
 //obtener el listado de todos los usuarios
 
-//actualizar su informacion
+
 
 
 module.exports = router

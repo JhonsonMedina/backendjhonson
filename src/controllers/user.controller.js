@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const { generarJWT } = require("../services/generar-jwt");
 
+
+
 //gestionar la creacion de un usuario
 
 const crearUser = async(req, res) =>{
@@ -63,8 +65,8 @@ const loginUser =  async(req, res) =>{
      msg: "todos los campos son requeridos",
      status: 404
 
-    })
-    }
+    });
+    };
 
 try{
 
@@ -73,16 +75,21 @@ try{
     return res.status(404).json({
         msg: `Usuario con email ${email} no encontrado`,
         status: 404,
-    })
+    });
 
-    }
+    };
 
     if(findUser.status !== "active"){
         return res.status(404).json({
             msg: `Usuario no esta activo`,
             status: 404,
-    })
-}
+    });
+};
+
+
+
+
+
 
 //Verificar contraseña
 
@@ -106,7 +113,7 @@ res.status(200).json ({
         email: findUser.email
     },
     token: token
-})
+});
 
 }catch (error){
     console.log(error)
@@ -114,10 +121,10 @@ res.status(200).json ({
         msg: "Error al crear el usuario",
         status: 500,
 
-})
-}
+});
+};
 
-}
+};
 
 
 
@@ -131,28 +138,140 @@ const getUserById = async(req, res) => {
             msg:"Id de usuario es requerido",
             status: 404,
         });
-    }
+    };
 
 
-const user =  await User.findById(iduser);
+    try{
+        const user =  await User.findById(iduser);
 
-if(!user){
+        if(!user){
+            return res.status(404).json({
+                msg:"Usuario no encontrado",
+                status: 404,
+            });
+        };
+        
+        res.status(200).json({
+            msg:"usuario encontrado exitosamente",
+            data:{
+                name: user.name,
+                lastName: user.lastName,
+                email: user.email,
+            },
+            status: 200,
+        });
+        
+    }  catch(error){
+        console.log(error)
+        res.status(500).json({
+        msg: "Usuario no valido",
+       status: 500,
+            });
+    };
+    };
+
+
+
+
+
+
+// actualizacion de status
+
+    const updateStatusUserById = async (req, res) => {
+
+        const{iduser} = req.params;
+
+        if(!iduser){
+            return res.status(404).json({
+                msg: "Id de usuario de es requerido",
+                status:404,
+            });
+        }
+
+        if(iduser.length !== 24){
+            return res.status(404).json({
+                msg: "Id de usuario vo Valido",
+                status:404,
+            });
+        }
+
+
+try{
+
+const changes = { status: "Inactive"}
+
+const user = await User.findByIdAndUpdate(iduser, changes);
+
+ if(!iduser){
     return res.status(404).json({
-        msg:"Usuario no encontrado",
-        status: 404,
+        msg: "Usuario no encontrado",
+        status:404,
     });
 }
 
 res.status(200).json({
-    msg:"usuario encontrado exitosamente",
+    msg:"Usuario actualizado exitosamente",
     data:{
-        name: user.name,
+        name:user.name,
         lastName: user.lastName,
-        email: user.email,
+        email:user.email
     },
     status: 200,
 });
 
+
+}   catch(error){
+    console.log(error)
+    res.status(500).json({
+    msg: "Error al buscar el usuario",
+   status: 500,
+        });
+        }
+
+    }
+
+
+
+
+    //actualizacion de datos
+// recibir los nuevos datos
+
+    const updateUserById = async(req, res) => {
+
+        const{iduser} = req.params;
+        const {name, lastName, email} = req.body
+
+        if(!iduser){
+            return res.status(404).json({
+                msg: "Id de usuario de es requerido",
+                status:404,
+            });
+        }
+
+        if(iduser.length !== 24){
+            return res.status(404).json({
+                msg: "Id de usuario vo Valido",
+                status:404,
+            });
+        }
+
+       
+
+const userChanges = {
+    name:name,
+    lastName:lastName,
+    email: email,
 }
+
+await User.findByIdAndUpdate(iduser, userChanges);
+res.status(200).json({
+    msg: "usuario actualizado",
+    status: 200,
+})
+
+}
+   
+
+
 module.exports = { crearUser,getUserById,
-loginUser}
+loginUser, updateStatusUserById, updateUserById}
